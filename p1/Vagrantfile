@@ -1,0 +1,42 @@
+VM_MEMORY = 512
+VM_CPU = 1
+
+
+Vagrant.configure("2") do |config|
+	# configure the LTS box
+	config.vm.box = "ubuntu/jammy64"
+	
+	#configure the provider
+	config.vm.provider "virtualbox" do |vb|
+	  vb.memory = VM_MEMORY
+	  vb.cpus = VM_CPU
+    end
+
+	#configure the server vm
+	config.vm.define "server" do |server|
+      server.vm.hostname = "Server"
+  	  server.vm.network "private_network", ip: "192.168.56.110"
+
+	  server.vm.provider "virtualbox" do |vb|
+	    vb.name = "vm1"
+	  end
+	  
+	  server.vm.provision "install_k3s_server", type: "shell", inline: <<-SHELL
+		bash /vagrant/scripts/server.sh
+	  SHELL
+	end
+
+	#configure the worker vm
+	config.vm.define "worker" do |worker|
+      worker.vm.hostname = "ServerWorker"
+  	  worker.vm.network "private_network", ip: "192.168.56.111"
+	  
+	  worker.vm.provider "virtualbox" do |vb|
+	    vb.name = "vm2"
+	  end
+	  
+	  worker.vm.provision "install_k3s_agent", type: "shell", inline: <<-SHELL
+		bash /vagrant/scripts/worker.sh
+	  SHELL
+	end
+ end

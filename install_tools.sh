@@ -15,17 +15,17 @@ set -e
 # 🔧 FONCTIONS
 # ------------------------------------------------------------------------------
 install_if_missing() {
-    if ! command -v "$1" &> /dev/null; then
-        echo -e "📦 Installation de ${YELLOW}$1${NC}..."
+    if ! which "$1" > /dev/null 2>&1; then
+        echo "📦 ${YELLOW}Installation de $1...${NC}"
         sudo apt install -y "$1"
     else
-        echo -e "✅ ${YELLOW}$1 déjà installé${NC}"
+        echo "✅ ${YELLOW}$1 déjà installé${NC}"
     fi
 }
 
 print_section() {
-    echo -e "\n$BREAK_LINE"
-    echo -e "🔧 ${YELLOW}$1${NC}"
+    echo "\n$BREAK_LINE"
+    echo "🔧 ${YELLOW}$1${NC}"
 }
 
 append_if_missing() {
@@ -44,9 +44,20 @@ sudo apt update -y && sudo apt upgrade -y
 # 📦 INSTALLATION DES OUTILS DE BASE
 # ------------------------------------------------------------------------------
 print_section "Installation des outils de base"
-for pkg in curl wget openssh-server git vim unzip tar gnupg zsh; do
+for pkg in curl wget git vim unzip tar gnupg zsh; do
     install_if_missing "$pkg"
 done
+
+# ------------------------------------------------------------------------------
+# 📦 INSTALLATION SSH SERVER
+# ------------------------------------------------------------------------------
+print_section "Installation de ssh server"
+if ! dpkg -s openssh-server > /dev/null 2>&1; then
+	echo "📦 ${YELLOW}Installation de ssh server...${NC}"
+        sudo apt install -y openssh-server
+    else
+        echo "✅ ${YELLOW}openssh-server déjà installé${NC}"
+    fi
 
 # ------------------------------------------------------------------------------
 # ⚙️ CONFIGURATION DE VIM
@@ -71,6 +82,7 @@ set incsearch 			" recherche incrémentale (affiche pendant la frappe)
 set ignorecase 			" recherche insensible à la casse
 set ruler 				" afficher ligne/colonne en bas
 set backspace=2			" autorise backspace même en début de ligne
+colorscheme desert		" theme desert
 "===========================================================================================
 EOF
 
@@ -81,7 +93,7 @@ print_section "Installation de Oh My Zsh"
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 else
-    echo -e "✅ ${YELLOW}Oh My Zsh déjà installé${NC}"
+    echo "✅ ${YELLOW}Oh My Zsh déjà installé${NC}"
 fi
 
 # ------------------------------------------------------------------------------
@@ -118,33 +130,33 @@ append_if_missing 'alias rmf="rm -rf"' ~/.zshrc
 print_section "Définir Zsh comme shell par défaut"
 if [ "$SHELL" != "$(which zsh)" ]; then
     chsh -s "$(which zsh)"
-    echo -e "✅ ${YELLOW}Zsh est maintenant le shell par défaut${NC}"
+    echo "✅ ${YELLOW}Zsh est maintenant le shell par défaut${NC}"
 else
-    echo -e "✅ ${YELLOW}Zsh est déjà le shell par défaut${NC}"
+    echo "✅ ${YELLOW}Zsh est déjà le shell par défaut${NC}"
 fi
 
 # ------------------------------------------------------------------------------
 # 📦 INSTALLATION DE VAGRANT
 # ------------------------------------------------------------------------------
 print_section "Installation de Vagrant"
-if ! command -v vagrant &> /dev/null; then
+if ! which vagrant > /dev/null 2>&1; then
     wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
     sudo apt update && sudo apt install -y vagrant
-    echo -e "✅ ${YELLOW}Vagrant installé avec succès${NC}"
+    echo "✅ ${YELLOW}Vagrant installé avec succès${NC}"
 else
-    echo -e "✅ ${YELLOW}Vagrant déjà installé${NC}"
+    echo "✅ ${YELLOW}Vagrant déjà installé${NC}"
 fi
 
 # ------------------------------------------------------------------------------
 # 🐳 INSTALLATION DE K3s
 # ------------------------------------------------------------------------------
 print_section "Installation de K3s (Server)"
-if ! command -v k3s &> /dev/null; then
+if ! which k3s > /dev/null 2>&1; then
     curl -sfL https://get.k3s.io | sh -
-    echo -e "✅ ${YELLOW}K3s installé avec succès${NC}"
+    echo "✅ ${YELLOW}K3s installé avec succès${NC}"
 else
-    echo -e "✅ ${YELLOW}K3s déjà installé${NC}"
+    echo "✅ ${YELLOW}K3s déjà installé${NC}"
 fi
 
 # ------------------------------------------------------------------------------
@@ -153,10 +165,10 @@ fi
 print_section "Installation de VirtualBox"
 
 if ! command -v virtualbox &> /dev/null; then
-    echo -e "📦 Ajout du dépôt VirtualBox..."
+    echo "📦 ${YELLOW}Ajout du dépôt VirtualBox...${NC}"
 
     # Ajout de la clé publique Oracle
-    wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo gpg --dearmor -o /usr/share/keyrings/virtualbox.gpg
+    wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo gpg --dearmor -o /usr/share/keyrings/virtualbox.gpg
 
     # Ajout du dépôt officiel Oracle (selon la version de l'OS)
     DISTRO_CODENAME=$(lsb_release -cs)
@@ -164,11 +176,11 @@ if ! command -v virtualbox &> /dev/null; then
 
     # Mise à jour et installation
     sudo apt update
-    sudo apt install -y virtualbox-7.0
+    sudo apt install -y virtualbox-7.1
 
-    echo -e "✅ ${YELLOW}VirtualBox installé avec succès${NC}"
+    echo "✅ ${YELLOW}VirtualBox installé avec succès${NC}"
 else
-    echo -e "✅ ${YELLOW}VirtualBox déjà installé${NC}"
+    echo "✅ ${YELLOW}VirtualBox déjà installé${NC}"
 fi
 
 # ------------------------------------------------------------------------------
