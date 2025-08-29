@@ -13,7 +13,7 @@ echo -e "$BREAK_LINE"
 
 echo -e "📦 ${YELLOW}Installation des outils de base...${NC}"
 sudo apt install -y \
-    curl wget git vim unzip tar gnupg zsh
+    curl wget openssh-server git vim unzip tar gnupg zsh
 echo -e "$BREAK_LINE"
 
 # ------------------------------------------------------------------------------
