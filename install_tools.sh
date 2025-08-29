@@ -1,25 +1,57 @@
+
 #!/bin/bash
 
+# ------------------------------------------------------------------------------
+# 🎨 COULEURS ET CONFIGS
+# ------------------------------------------------------------------------------
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m'
 BREAK_LINE="${GREEN}================================================================================${NC}"
-
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 set -e
 
-echo -e "🔧 ${YELLOW}Mise à jour des paquets...${NC}"
+# ------------------------------------------------------------------------------
+# 🔧 FONCTIONS
+# ------------------------------------------------------------------------------
+install_if_missing() {
+    if ! command -v "$1" &> /dev/null; then
+        echo -e "📦 Installation de ${YELLOW}$1${NC}..."
+        sudo apt install -y "$1"
+    else
+        echo -e "✅ ${YELLOW}$1 déjà installé${NC}"
+    fi
+}
+
+print_section() {
+    echo -e "\n$BREAK_LINE"
+    echo -e "🔧 ${YELLOW}$1${NC}"
+}
+
+append_if_missing() {
+    local line="$1"
+    local file="$2"
+    grep -qxF "$line" "$file" || echo "$line" >> "$file"
+}
+
+# ------------------------------------------------------------------------------
+# 🔁 MISE À JOUR DES PAQUETS
+# ------------------------------------------------------------------------------
+print_section "Mise à jour des paquets"
 sudo apt update -y && sudo apt upgrade -y
-echo -e "$BREAK_LINE"
-
-echo -e "📦 ${YELLOW}Installation des outils de base...${NC}"
-sudo apt install -y \
-    curl wget openssh-server git vim unzip tar gnupg zsh
-echo -e "$BREAK_LINE"
 
 # ------------------------------------------------------------------------------
-# VIM CONFIGURATION
+# 📦 INSTALLATION DES OUTILS DE BASE
 # ------------------------------------------------------------------------------
-echo -e "⚙️  ${YELLOW}Configuration de Vim...${NC}"
+print_section "Installation des outils de base"
+for pkg in curl wget openssh-server git vim unzip tar gnupg zsh; do
+    install_if_missing "$pkg"
+done
+
+# ------------------------------------------------------------------------------
+# ⚙️ CONFIGURATION DE VIM
+# ------------------------------------------------------------------------------
+print_section "Configuration de Vim"
 cat << 'EOF' > ~/.vimrc
 "===========================================================================================
 "						 ---------------------
@@ -27,89 +59,119 @@ cat << 'EOF' > ~/.vimrc
 "						 ---------------------
 
 set encoding=utf-8
-set nocompatible		"desactive compatibilite vi
-syntax on				"coloration syntaxique
-set autoindent			"indentation automatique
-set number 				"activer le nm de ligne
-set mouse=a 			"activer la souris
-set shiftwidth=4		"nbr d'espace pour 1 tabulation
-set tabstop=4 			"utiliser tab aulieu d'espace
-set scrolloff=3			"marge de 3lignes avant ou apres curseur
-set incsearch 			"highlight le mots recheche
-set ignorecase 			"recherche insensible a la case
-set ruler 				"affichage filename, ligne, colonne en bas
-set backspace=2			"permet supp caractere precedent meme endebut deligne
-"colorscheme lunaperche	"changer le theme vim en /lunaperche/
-
+set nocompatible		" désactive compatibilité vi
+syntax on				" coloration syntaxique
+set autoindent			" indentation automatique
+set number 				" afficher les numéros de lignes
+set mouse=a 			" activer la souris
+set shiftwidth=4		" nombre d'espaces pour une tabulation
+set tabstop=4 			" utiliser tab au lieu d'espace
+set scrolloff=3			" marge de 3 lignes avant ou après le curseur
+set incsearch 			" recherche incrémentale (affiche pendant la frappe)
+set ignorecase 			" recherche insensible à la casse
+set ruler 				" afficher ligne/colonne en bas
+set backspace=2			" autorise backspace même en début de ligne
 "===========================================================================================
 EOF
-echo -e "$BREAK_LINE"
 
 # ------------------------------------------------------------------------------
-# OH MY ZSH INSTALLATION
+# 💻 INSTALLATION DE OH MY ZSH
 # ------------------------------------------------------------------------------
-echo -e "📦 ${YELLOW}Installation de Oh My Zsh...${NC}"
+print_section "Installation de Oh My Zsh"
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 else
     echo -e "✅ ${YELLOW}Oh My Zsh déjà installé${NC}"
 fi
-echo -e "$BREAK_LINE"
 
-echo -e "📦 ${YELLOW}Installation des plugins Zsh...${NC}"
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+# ------------------------------------------------------------------------------
+# 🔌 INSTALLATION DES PLUGINS ZSH
+# ------------------------------------------------------------------------------
+print_section "Installation des plugins Zsh"
 
 # zsh-autosuggestions
 if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions
 fi
+
 # zsh-syntax-highlighting
 if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting
 fi
-echo -e "$BREAK_LINE"
 
 # ------------------------------------------------------------------------------
-# CONFIGURATION DE .zshrc
+# ⚙️ CONFIGURATION DE .zshrc
 # ------------------------------------------------------------------------------
-echo -e "⚙️  ${YELLOW}Configuration de .zshrc...${NC}"
+print_section "Configuration de .zshrc"
+
+# Activer les plugins
 sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
 
-cat << 'EOF' >> ~/.zshrc
-
-# ================= ALIAS PERSO =================
-alias cl="clear"
-alias ls="ls --color=auto"
-alias rmf="rm -rf"
-# ===============================================
-EOF
-echo -e "$BREAK_LINE"
+# Ajout des alias perso si manquants
+append_if_missing 'alias cl="clear"' ~/.zshrc
+append_if_missing 'alias ls="ls --color=auto"' ~/.zshrc
+append_if_missing 'alias rmf="rm -rf"' ~/.zshrc
 
 # ------------------------------------------------------------------------------
-# SHELL PAR DÉFAUT = ZSH
+# 🐚 ZSH COMME SHELL PAR DÉFAUT
 # ------------------------------------------------------------------------------
-echo -e "⚙️  ${YELLOW}Passage à Zsh par défaut...${NC}"
-chsh -s $(which zsh)
-echo -e "$BREAK_LINE"
+print_section "Définir Zsh comme shell par défaut"
+if [ "$SHELL" != "$(which zsh)" ]; then
+    chsh -s "$(which zsh)"
+    echo -e "✅ ${YELLOW}Zsh est maintenant le shell par défaut${NC}"
+else
+    echo -e "✅ ${YELLOW}Zsh est déjà le shell par défaut${NC}"
+fi
 
 # ------------------------------------------------------------------------------
-# INSTALLATION DE VAGRANT
+# 📦 INSTALLATION DE VAGRANT
 # ------------------------------------------------------------------------------
-echo -e "${YELLOW}Installation de Vagrant...${NC}"
-wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
-sudo apt update && sudo apt install vagrant
-echo "${YELLOW}✅ Vagrant installé avec succès${NC}"
-echo -e ${BREAK_LINE}
+print_section "Installation de Vagrant"
+if ! command -v vagrant &> /dev/null; then
+    wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+    sudo apt update && sudo apt install -y vagrant
+    echo -e "✅ ${YELLOW}Vagrant installé avec succès${NC}"
+else
+    echo -e "✅ ${YELLOW}Vagrant déjà installé${NC}"
+fi
 
 # ------------------------------------------------------------------------------
-# INSTALLATION DE K3s
+# 🐳 INSTALLATION DE K3s
 # ------------------------------------------------------------------------------
-echo -e "${YELLOW}Installation de K3s Server...${NC}"
-curl -sfL https://get.k3s.io | sh - 
-echo "${YELLOW}✅ K3s installé avec succès${NC}"
-echo -e ${BREAK_LINE}
+print_section "Installation de K3s (Server)"
+if ! command -v k3s &> /dev/null; then
+    curl -sfL https://get.k3s.io | sh -
+    echo -e "✅ ${YELLOW}K3s installé avec succès${NC}"
+else
+    echo -e "✅ ${YELLOW}K3s déjà installé${NC}"
+fi
 
+# ------------------------------------------------------------------------------
+# 📦 INSTALLATION DE VIRTUALBOX
+# ------------------------------------------------------------------------------
+print_section "Installation de VirtualBox"
 
-echo -e "🎉 ${YELLOW}Installation terminée ! Relance ton terminal pour profiter de Vim + Oh My Zsh.${NC}"
+if ! command -v virtualbox &> /dev/null; then
+    echo -e "📦 Ajout du dépôt VirtualBox..."
 
+    # Ajout de la clé publique Oracle
+    wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | sudo gpg --dearmor -o /usr/share/keyrings/virtualbox.gpg
+
+    # Ajout du dépôt officiel Oracle (selon la version de l'OS)
+    DISTRO_CODENAME=$(lsb_release -cs)
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/virtualbox.gpg] https://download.virtualbox.org/virtualbox/debian $DISTRO_CODENAME contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+
+    # Mise à jour et installation
+    sudo apt update
+    sudo apt install -y virtualbox-7.0
+
+    echo -e "✅ ${YELLOW}VirtualBox installé avec succès${NC}"
+else
+    echo -e "✅ ${YELLOW}VirtualBox déjà installé${NC}"
+fi
+
+# ------------------------------------------------------------------------------
+# ✅ FIN
+# ------------------------------------------------------------------------------
+echo -e "\n🎉 ${GREEN}Installation terminée ! Relance ton terminal pour profiter de Vim + Oh My Zsh.${NC}"
