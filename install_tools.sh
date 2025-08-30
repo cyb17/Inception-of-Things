@@ -164,7 +164,7 @@ fi
 # ------------------------------------------------------------------------------
 print_section "Installation de VirtualBox"
 
-if ! command -v virtualbox &> /dev/null; then
+if ! which virtualbox > /dev/null 2>&1; then
     echo "📦 ${YELLOW}Ajout du dépôt VirtualBox...${NC}"
 
     # Ajout de la clé publique Oracle
