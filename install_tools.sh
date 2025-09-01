@@ -14,18 +14,26 @@ set -e
 # ------------------------------------------------------------------------------
 # 🔧 FONCTIONS
 # ------------------------------------------------------------------------------
+echo_color() {
+    if [ -n "$BASH_VERSION" ]; then
+        echo -e "$1"
+    else
+        echo "$1"
+    fi
+}
+
 install_if_missing() {
     if ! which "$1" > /dev/null 2>&1; then
-        echo "📦 ${YELLOW}Installation de $1...${NC}"
+        echo_color "📦 ${YELLOW}Installation de $1...${NC}"
         sudo apt install -y "$1"
     else
-        echo "✅ ${YELLOW}$1 déjà installé${NC}"
+        echo_color "✅ ${YELLOW}$1 déjà installé${NC}"
     fi
 }
 
 print_section() {
-    echo "\n$BREAK_LINE"
-    echo "🔧 ${YELLOW}$1${NC}"
+    echo_color "\n$BREAK_LINE"
+    echo_color "🔧 ${YELLOW}$1${NC}"
 }
 
 append_if_missing() {
@@ -44,19 +52,28 @@ sudo apt update -y && sudo apt upgrade -y
 # 📦 INSTALLATION DES OUTILS DE BASE
 # ------------------------------------------------------------------------------
 print_section "Installation des outils de base"
-for pkg in curl wget git vim unzip tar gnupg zsh; do
+for pkg in curl wget git vim unzip tar zsh; do
     install_if_missing "$pkg"
 done
+
+# Vérification spécifique de gnupg (pour éviter conflit entre gnug et gnupg)
+print_section "Vérification de gnupg"
+if ! dpkg -s gnupg > /dev/null 2>&1; then
+    echo_color "📦 ${YELLOW}Installation de gnupg...${NC}"
+    sudo apt install -y gnupg
+else
+    echo_color "✅ ${YELLOW}gnupg déjà installé${NC}"
+fi
 
 # ------------------------------------------------------------------------------
 # 📦 INSTALLATION SSH SERVER
 # ------------------------------------------------------------------------------
 print_section "Installation de ssh server"
 if ! dpkg -s openssh-server > /dev/null 2>&1; then
-	echo "📦 ${YELLOW}Installation de ssh server...${NC}"
+	echo_color "📦 ${YELLOW}Installation de ssh server...${NC}"
         sudo apt install -y openssh-server
     else
-        echo "✅ ${YELLOW}openssh-server déjà installé${NC}"
+        echo_color "✅ ${YELLOW}openssh-server déjà installé${NC}"
     fi
 
 # ------------------------------------------------------------------------------
@@ -191,4 +208,4 @@ fi
 # ------------------------------------------------------------------------------
 # ✅ FIN
 # ------------------------------------------------------------------------------
-echo -e "\n🎉 ${GREEN}Installation terminée ! Relance ton terminal pour profiter de Vim + Oh My Zsh.${NC}"
+echo_color "\n🎉 ${GREEN}Installation terminée ! Relance ton terminal pour profiter de Vim + Oh My Zsh.${NC}"

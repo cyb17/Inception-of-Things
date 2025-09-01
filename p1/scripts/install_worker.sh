@@ -12,6 +12,9 @@ echo -e "${YELLOW}k3s agent installing...${NC}"
 TOKEN=$(cat /vagrant/shared/node-token)
 SERVER_IP=$(cat /vagrant/shared/server-ip)
 
+echo "${TOKEN}"
+echo "${SERVER_IP}"
+
 if curl -sfL https://get.k3s.io | K3S_URL="https://$SERVER_IP:6443" K3S_TOKEN="$TOKEN" sh -; then
     echo -e "${GREEN}k3s agent installed with success!${NC}"
 else

@@ -36,7 +36,7 @@ Vagrant.configure("2") do |config|
 	  end
 	  
 	  worker.vm.provision "install_k3s_agent", type: "shell", inline: <<-SHELL
-		bash /vagrant/scripts/intall_worker.sh
+		bash /vagrant/scripts/install_worker.sh
 	  SHELL
 	end
  end
