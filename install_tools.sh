@@ -167,15 +167,20 @@ print_section "Installation de VirtualBox"
 if ! which virtualbox > /dev/null 2>&1; then
     echo "📦 ${YELLOW}Ajout du dépôt VirtualBox...${NC}"
 
-    # Ajout de la clé publique Oracle
-    wget -q https://www.virtualbox.org/download/oracle_vbox.asc -O- | sudo gpg --dearmor -o /usr/share/keyrings/virtualbox.gpg
+	# Supprimer l'ancienne clé si elle existe
+	sudo rm -f /usr/share/keyrings/virtualbox.gpg
 
-    # Ajout du dépôt officiel Oracle (selon la version de l'OS)
-    DISTRO_CODENAME=$(lsb_release -cs)
-    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/virtualbox.gpg] https://download.virtualbox.org/virtualbox/debian $DISTRO_CODENAME contrib" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+	# Télécharger et installer la bonne clé GPG (Oracle VBOX 2016)
+	wget -q https://www.virtualbox.org/download/oracle_vbox_2016.asc -O- | \
+		gpg --dearmor | sudo tee /usr/share/keyrings/virtualbox.gpg > /dev/null
 
-    # Mise à jour et installation
-    sudo apt update
+	# Écrire proprement la source VirtualBox pour Debian Trixie
+	DISTRO_CODENAME=$(lsb_release -cs)
+	echo "deb [arch=amd64 signed-by=/usr/share/keyrings/virtualbox.gpg] https://download.virtualbox.org/virtualbox/debian $DISTRO_CODENAME contrib" | \
+		sudo tee /etc/apt/sources.list.d/virtualbox.list > /dev/null
+
+	# Mise à jour du cache APT
+	sudo apt update
     sudo apt install -y virtualbox-7.1
 
     echo "✅ ${YELLOW}VirtualBox installé avec succès${NC}"
