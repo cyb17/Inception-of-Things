@@ -9,31 +9,24 @@ YELLOW='\033[1;33m'
 NC='\033[0m'
 BREAK_LINE="${GREEN}================================================================================${NC}"
 ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+
 set -e
 
 # ------------------------------------------------------------------------------
 # 🔧 FONCTIONS
 # ------------------------------------------------------------------------------
-echo_color() {
-    if [ -n "$BASH_VERSION" ]; then
-        echo -e "$1"
-    else
-        echo "$1"
-    fi
-}
-
 install_if_missing() {
-    if ! which "$1" > /dev/null 2>&1; then
-        echo_color "📦 ${YELLOW}Installation de $1...${NC}"
+    if ! dpkg -s "$1" > /dev/null 2>&1; then
+        echo -e "📦 ${YELLOW}Installation de $1...${NC}"
         sudo apt install -y "$1"
     else
-        echo_color "✅ ${YELLOW}$1 déjà installé${NC}"
+        echo -e "✅ ${YELLOW}$1 déjà installé${NC}"
     fi
 }
 
 print_section() {
-    echo_color "\n$BREAK_LINE"
-    echo_color "🔧 ${YELLOW}$1${NC}"
+    echo -e "\n$BREAK_LINE"
+    echo -e "🔧 ${YELLOW}$1${NC}"
 }
 
 append_if_missing() {
@@ -52,29 +45,9 @@ sudo apt update -y && sudo apt upgrade -y
 # 📦 INSTALLATION DES OUTILS DE BASE
 # ------------------------------------------------------------------------------
 print_section "Installation des outils de base"
-for pkg in curl wget git vim unzip tar zsh; do
+for pkg in curl wget git vim unzip tar openssh-server gnupg zsh; do
     install_if_missing "$pkg"
 done
-
-# Vérification spécifique de gnupg (pour éviter conflit entre gnug et gnupg)
-print_section "Vérification de gnupg"
-if ! dpkg -s gnupg > /dev/null 2>&1; then
-    echo_color "📦 ${YELLOW}Installation de gnupg...${NC}"
-    sudo apt install -y gnupg
-else
-    echo_color "✅ ${YELLOW}gnupg déjà installé${NC}"
-fi
-
-# ------------------------------------------------------------------------------
-# 📦 INSTALLATION SSH SERVER
-# ------------------------------------------------------------------------------
-print_section "Installation de ssh server"
-if ! dpkg -s openssh-server > /dev/null 2>&1; then
-	echo_color "📦 ${YELLOW}Installation de ssh server...${NC}"
-        sudo apt install -y openssh-server
-    else
-        echo_color "✅ ${YELLOW}openssh-server déjà installé${NC}"
-    fi
 
 # ------------------------------------------------------------------------------
 # ⚙️ CONFIGURATION DE VIM
@@ -110,7 +83,7 @@ print_section "Installation de Oh My Zsh"
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 else
-    echo "✅ ${YELLOW}Oh My Zsh déjà installé${NC}"
+    echo -e "✅ ${YELLOW}Oh My Zsh déjà installé${NC}"
 fi
 
 # ------------------------------------------------------------------------------
@@ -122,7 +95,6 @@ print_section "Installation des plugins Zsh"
 if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
     git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions
 fi
-
 # zsh-syntax-highlighting
 if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting
@@ -135,7 +107,6 @@ print_section "Configuration de .zshrc"
 
 # Activer les plugins
 sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
-
 # Ajout des alias perso si manquants
 append_if_missing 'alias cl="clear"' ~/.zshrc
 append_if_missing 'alias ls="ls --color=auto"' ~/.zshrc
@@ -147,9 +118,9 @@ append_if_missing 'alias rmf="rm -rf"' ~/.zshrc
 print_section "Définir Zsh comme shell par défaut"
 if [ "$SHELL" != "$(which zsh)" ]; then
     chsh -s "$(which zsh)"
-    echo "✅ ${YELLOW}Zsh est maintenant le shell par défaut${NC}"
+    echo -e "✅ ${YELLOW}Zsh est maintenant le shell par défaut${NC}"
 else
-    echo "✅ ${YELLOW}Zsh est déjà le shell par défaut${NC}"
+    echo -e  "✅ ${YELLOW}Zsh est déjà le shell par défaut${NC}"
 fi
 
 # ------------------------------------------------------------------------------
@@ -160,9 +131,9 @@ if ! which vagrant > /dev/null 2>&1; then
     wget -O - https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(grep -oP '(?<=UBUNTU_CODENAME=).*' /etc/os-release || lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
     sudo apt update && sudo apt install -y vagrant
-    echo "✅ ${YELLOW}Vagrant installé avec succès${NC}"
+    echo -e "✅ ${YELLOW}Vagrant installé avec succès${NC}"
 else
-    echo "✅ ${YELLOW}Vagrant déjà installé${NC}"
+    echo -e "✅ ${YELLOW}Vagrant déjà installé${NC}"
 fi
 
 # ------------------------------------------------------------------------------
@@ -171,9 +142,9 @@ fi
 print_section "Installation de K3s (Server)"
 if ! which k3s > /dev/null 2>&1; then
     curl -sfL https://get.k3s.io | sh -
-    echo "✅ ${YELLOW}K3s installé avec succès${NC}"
+    echo -e "✅ ${YELLOW}K3s installé avec succès${NC}"
 else
-    echo "✅ ${YELLOW}K3s déjà installé${NC}"
+    echo -e "✅ ${YELLOW}K3s déjà installé${NC}"
 fi
 
 # ------------------------------------------------------------------------------
@@ -182,7 +153,7 @@ fi
 print_section "Installation de VirtualBox"
 
 if ! which virtualbox > /dev/null 2>&1; then
-    echo "📦 ${YELLOW}Ajout du dépôt VirtualBox...${NC}"
+    echo -e "📦 ${YELLOW}Ajout du dépôt VirtualBox...${NC}"
 
 	# Supprimer l'ancienne clé si elle existe
 	sudo rm -f /usr/share/keyrings/virtualbox.gpg
@@ -200,12 +171,12 @@ if ! which virtualbox > /dev/null 2>&1; then
 	sudo apt update
     sudo apt install -y virtualbox-7.1
 
-    echo "✅ ${YELLOW}VirtualBox installé avec succès${NC}"
+    echo -e "✅ ${YELLOW}VirtualBox installé avec succès${NC}"
 else
-    echo "✅ ${YELLOW}VirtualBox déjà installé${NC}"
+    echo -e "✅ ${YELLOW}VirtualBox déjà installé${NC}"
 fi
 
 # ------------------------------------------------------------------------------
 # ✅ FIN
 # ------------------------------------------------------------------------------
-echo_color "\n🎉 ${GREEN}Installation terminée ! Relance ton terminal pour profiter de Vim + Oh My Zsh.${NC}"
+echo -e "\n🎉 ${GREEN}Installation terminée ! Relance ton terminal pour profiter de Vim + Oh My Zsh.${NC}"
