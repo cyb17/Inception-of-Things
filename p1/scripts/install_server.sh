@@ -13,5 +13,3 @@ echo "$(sudo systemctl status k3s)"
 mkdir -p /vagrant/shared
 
 cp /var/lib/rancher/k3s/server/node-token /vagrant/shared/
-hostname -i > /vagrant/shared/server-ip
-

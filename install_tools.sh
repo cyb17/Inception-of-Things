@@ -139,13 +139,13 @@ fi
 # ------------------------------------------------------------------------------
 # 🐳 INSTALLATION DE K3s
 # ------------------------------------------------------------------------------
-print_section "Installation de K3s (Server)"
-if ! which k3s > /dev/null 2>&1; then
-    curl -sfL https://get.k3s.io | sh -
-    echo -e "✅ ${YELLOW}K3s installé avec succès${NC}"
-else
-    echo -e "✅ ${YELLOW}K3s déjà installé${NC}"
-fi
+#print_section "Installation de K3s (Server)"
+#if ! which k3s > /dev/null 2>&1; then
+#    curl -sfL https://get.k3s.io | sh -
+#    echo -e "✅ ${YELLOW}K3s installé avec succès${NC}"
+#else
+#    echo -e "✅ ${YELLOW}K3s déjà installé${NC}"
+#fi
 
 # ------------------------------------------------------------------------------
 # 📦 INSTALLATION DE VIRTUALBOX
