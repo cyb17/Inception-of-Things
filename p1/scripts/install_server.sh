@@ -1,15 +1,14 @@
 #!/bin/bash
-
-# Stop script if any command fails
 set -e
 
-echo 'K3S SERVER INSTALLING...'
-curl -sfL https://get.k3s.io | sh -
+echo "Installing K3s server..."
 
-echo '=> SHOW STATUS : '
-echo "$(sudo systemctl status k3s)"
+# Forcing K3s to bind on the private network
+curl -sfL https://get.k3s.io | sh -s - --node-ip=192.168.56.110
 
-# Create shared folder and copy necessary data
+# Make sure node-token is accessible by the agent
 mkdir -p /vagrant/shared
-
 cp /var/lib/rancher/k3s/server/node-token /vagrant/shared/
+
+sudo systemctl status k3s --no-pager -l
+

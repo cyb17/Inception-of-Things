@@ -1,42 +1,39 @@
 VM_MEMORY = 1024
-VM_CPU = 1
-
+VM_CPU    = 1
 
 Vagrant.configure("2") do |config|
-	# configure the LTS box
-	config.vm.box = "ubuntu/jammy64"
-	
-	#configure the provider
-	config.vm.provider "virtualbox" do |vb|
-	  vb.memory = VM_MEMORY
-	  vb.cpus = VM_CPU
+  config.vm.box = "ubuntu/jammy64"
+
+  # ===== SERVER VM =====
+  config.vm.define "yachenS" do |server|
+    server.vm.hostname = "yachenS"
+    server.vm.network "private_network", ip: "192.168.56.110"
+
+    server.vm.provider "virtualbox" do |vb|
+      vb.name = "jahuang"
+      vb.memory = VM_MEMORY
+      vb.cpus   = VM_CPU
     end
 
-	#configure the server vm
-	config.vm.define "yachenS" do |yachenS|
-      yachenS.vm.hostname = "yachenS"
-  	  yachenS.vm.network "private_network", ip: "192.168.56.110"
+    server.vm.provision "install_k3s_server", type: "shell", inline: <<-SHELL
+      bash /vagrant/scripts/install_server.sh
+    SHELL
+  end
 
-	  yachenS.vm.provider "virtualbox" do |vb|
-	    vb.name = "jahuang"
-	  end
-	  
-	  yachenS.vm.provision "install_k3s_server", type: "shell", inline: <<-SHELL
-		bash /vagrant/scripts/install_server.sh
-	  SHELL
-	end
+  # ===== AGENT VM =====
+  config.vm.define "yachenSW" do |agent|
+    agent.vm.hostname = "yachenSW"
+    agent.vm.network "private_network", ip: "192.168.56.111"
 
-	#configure the worker vm
-	config.vm.define "yachenSW" do |yachenSW|
-      yachenSW.vm.hostname = "yachenSW"
-  	  yachenSW.vm.network "private_network", ip: "192.168.56.111"
-	  
-	  yachenSW.vm.provider "virtualbox" do |vb|
-	    vb.name = "yachen"
-	  end
-	  
-	  yachenSW.vm.provision "install_k3s_agent", type: "shell", inline: <<-SHELL
-		bash /vagrant/scripts/install_worker.sh
-	  SHELL
-	end
- end
+    agent.vm.provider "virtualbox" do |vb|
+      vb.name = "yachen"
+      vb.memory = VM_MEMORY
+      vb.cpus   = VM_CPU
+    end
+
+    agent.vm.provision "install_k3s_agent", type: "shell", inline: <<-SHELL
+      bash /vagrant/scripts/install_worker.sh
+    SHELL
+  end
+end
+
