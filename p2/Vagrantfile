@@ -15,10 +15,7 @@ Vagrant.configure("2") do |config|
       vb.cpus   = VM_CPU
     end
 
-    server.vm.provision "install_k3s_server", type: "shell", inline: <<-SHELL
-	  curl -sfL https://get.k3s.io | sh -s - --node-ip=192.168.56.110
-	  sudo systemctl status k3s --no-pager -l
-    SHELL
-  end
+    server.vm.provision "all_in_one", type: "shell", path: "./all_in_one.sh"
+ end
 end
 

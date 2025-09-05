@@ -26,7 +26,7 @@ install_if_missing() {
 
 print_section() {
     echo -e "\n$BREAK_LINE"
-    echo -e "🔧 ${YELLOW}$1${NC}"
+    echo -e "${YELLOW}$1${NC}"
 }
 
 append_if_missing() {
@@ -45,83 +45,9 @@ sudo apt update -y && sudo apt upgrade -y
 # 📦 INSTALLATION DES OUTILS DE BASE
 # ------------------------------------------------------------------------------
 print_section "Installation des outils de base"
-for pkg in curl wget git vim unzip tar openssh-server gnupg zsh; do
+for pkg in curl wget git vim openssh-server gnupg zsh; do
     install_if_missing "$pkg"
 done
-
-# ------------------------------------------------------------------------------
-# ⚙️ CONFIGURATION DE VIM
-# ------------------------------------------------------------------------------
-print_section "Configuration de Vim"
-cat << 'EOF' > ~/.vimrc
-"===========================================================================================
-"						 ---------------------
-"					    | parametres basiques |
-"						 ---------------------
-
-set encoding=utf-8
-set nocompatible		" désactive compatibilité vi
-syntax on				" coloration syntaxique
-set autoindent			" indentation automatique
-set number 				" afficher les numéros de lignes
-set mouse=a 			" activer la souris
-set shiftwidth=4		" nombre d'espaces pour une tabulation
-set tabstop=4 			" utiliser tab au lieu d'espace
-set scrolloff=3			" marge de 3 lignes avant ou après le curseur
-set incsearch 			" recherche incrémentale (affiche pendant la frappe)
-set ignorecase 			" recherche insensible à la casse
-set ruler 				" afficher ligne/colonne en bas
-set backspace=2			" autorise backspace même en début de ligne
-colorscheme desert		" theme desert
-"===========================================================================================
-EOF
-
-# ------------------------------------------------------------------------------
-# 💻 INSTALLATION DE OH MY ZSH
-# ------------------------------------------------------------------------------
-print_section "Installation de Oh My Zsh"
-if [ ! -d "$HOME/.oh-my-zsh" ]; then
-    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
-else
-    echo -e "✅ ${YELLOW}Oh My Zsh déjà installé${NC}"
-fi
-
-# ------------------------------------------------------------------------------
-# 🔌 INSTALLATION DES PLUGINS ZSH
-# ------------------------------------------------------------------------------
-print_section "Installation des plugins Zsh"
-
-# zsh-autosuggestions
-if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
-    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions
-fi
-# zsh-syntax-highlighting
-if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
-    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting
-fi
-
-# ------------------------------------------------------------------------------
-# ⚙️ CONFIGURATION DE .zshrc
-# ------------------------------------------------------------------------------
-print_section "Configuration de .zshrc"
-
-# Activer les plugins
-sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
-# Ajout des alias perso si manquants
-append_if_missing 'alias cl="clear"' ~/.zshrc
-append_if_missing 'alias ls="ls --color=auto"' ~/.zshrc
-append_if_missing 'alias rmf="rm -rf"' ~/.zshrc
-
-# ------------------------------------------------------------------------------
-# 🐚 ZSH COMME SHELL PAR DÉFAUT
-# ------------------------------------------------------------------------------
-print_section "Définir Zsh comme shell par défaut"
-if [ "$SHELL" != "$(which zsh)" ]; then
-    chsh -s "$(which zsh)"
-    echo -e "✅ ${YELLOW}Zsh est maintenant le shell par défaut${NC}"
-else
-    echo -e  "✅ ${YELLOW}Zsh est déjà le shell par défaut${NC}"
-fi
 
 # ------------------------------------------------------------------------------
 # 📦 INSTALLATION DE VAGRANT
@@ -135,17 +61,6 @@ if ! which vagrant > /dev/null 2>&1; then
 else
     echo -e "✅ ${YELLOW}Vagrant déjà installé${NC}"
 fi
-
-# ------------------------------------------------------------------------------
-# 🐳 INSTALLATION DE K3s
-# ------------------------------------------------------------------------------
-#print_section "Installation de K3s (Server)"
-#if ! which k3s > /dev/null 2>&1; then
-#    curl -sfL https://get.k3s.io | sh -
-#    echo -e "✅ ${YELLOW}K3s installé avec succès${NC}"
-#else
-#    echo -e "✅ ${YELLOW}K3s déjà installé${NC}"
-#fi
 
 # ------------------------------------------------------------------------------
 # 📦 INSTALLATION DE VIRTUALBOX
@@ -177,6 +92,117 @@ else
 fi
 
 # ------------------------------------------------------------------------------
+# 📦 INSTALLATION DE DOCKER
+# ------------------------------------------------------------------------------
+print_section "Installation de Docker"
+
+if ! which docker > /dev/null 2>&1; then
+    curl -fsSL https://get.docker.com | sh
+    sudo usermod -aG docker $USER
+    echo -e "✅ ${YELLOW}Docker installé avec succès${NC}"
+else
+    echo -e "✅ ${YELLOW}Docker déjà installé${NC}"
+fi
+
+# ------------------------------------------------------------------------------
+# 📦 INSTALLATION DE K3D
+# ------------------------------------------------------------------------------
+print_section "Installation de K3D"
+
+if ! which k3d > /dev/null 2>&1; then
+    curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash
+    echo -e "✅ ${YELLOW}K3d installé avec succès${NC}"
+else
+    echo -e "✅ ${YELLOW}K3d déjà installé${NC}"
+fi
+
+# ------------------------------------------------------------------------------
+# 📦 INSTALLATION DE OH MY ZSH
+# ------------------------------------------------------------------------------
+print_section "Installation de Oh My Zsh"
+if [ ! -d "$HOME/.oh-my-zsh" ]; then
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    echo -e "✅ ${YELLOW}Oh My Zsh installé avec succès${NC}"
+else
+    echo -e "✅ ${YELLOW}Oh My Zsh déjà installé${NC}"
+fi
+
+# ------------------------------------------------------------------------------
+# 📦 INSTALLATION DES PLUGINS OH MY ZSH
+# ------------------------------------------------------------------------------
+print_section "Installation des plugins Zsh"
+
+# zsh-autosuggestions
+if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
+    git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM}/plugins/zsh-autosuggestions
+fi
+# zsh-syntax-highlighting
+if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
+    git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM}/plugins/zsh-syntax-highlighting
+fi
+
+# ------------------------------------------------------------------------------
+# ⚙️  CONFIGURATION DE .zshrc
+# ------------------------------------------------------------------------------
+print_section "Configuration de .zshrc"
+
+# activer les plugins
+sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting)/' ~/.zshrc
+# ajout des alias perso si manquants
+append_if_missing 'alias cl="clear"' ~/.zshrc
+append_if_missing 'alias ls="ls --color=auto"' ~/.zshrc
+append_if_missing 'alias rmf="rm -rf"' ~/.zshrc
+
+# ------------------------------------------------------------------------------
+# ⚙️  CONFIGURATION DE ZSH COMME SHELL PAR DÉFAUT
+# ------------------------------------------------------------------------------
+print_section "Définir Zsh comme shell par défaut"
+if [ "$SHELL" != "$(which zsh)" ]; then
+    chsh -s "$(which zsh)"
+    echo -e "✅ ${YELLOW}Zsh est maintenant le shell par défaut${NC}"
+else
+    echo -e  "✅ ${YELLOW}Zsh est déjà le shell par défaut${NC}"
+fi
+
+# ------------------------------------------------------------------------------
+# ⚙️  CONFIGURATION DE VIM
+# ------------------------------------------------------------------------------
+print_section "Configuration de vim"
+cat << 'eof' > ~/.vimrc
+"===========================================================================================
+"						 ---------------------
+"					    | parametres basiques |
+"						 ---------------------
+
+set encoding=utf-8
+set nocompatible		" désactive compatibilité vi
+syntax on				" coloration syntaxique
+set autoindent			" indentation automatique
+set number 				" afficher les numéros de lignes
+set mouse=a 			" activer la souris
+set shiftwidth=4		" nombre d'espaces pour une tabulation
+set tabstop=4 			" utiliser tab au lieu d'espace
+set scrolloff=3			" marge de 3 lignes avant ou après le curseur
+set incsearch 			" recherche incrémentale (affiche pendant la frappe)
+set ignorecase 			" recherche insensible à la casse
+set ruler 				" afficher ligne/colonne en bas
+set backspace=2			" autorise backspace même en début de ligne
+colorscheme desert		" theme desert
+"===========================================================================================
+eof
+
+# ------------------------------------------------------------------------------
+#  ⚙️  DÉACTIVER KVM POUR CETTE SESSION
+# ------------------------------------------------------------------------------
+print_section "Désactiver KVM pour cette session pour éviter les conflits de VMs imbriqués nested VMs..."
+
+if sudo modprobe -r kvm_intel 2>/dev/null || sudo modprobe -r kvm_amd 2>/dev/null; then
+    sudo modprobe -r kvm && echo -e "✅ ${YELLOW}KVM désactiver${NC}"
+else
+    echo -e "${YELLOW}Impossible de désactiver KVM${NC}"
+fi
+
+# ------------------------------------------------------------------------------
 # ✅ FIN
 # ------------------------------------------------------------------------------
-echo -e "\n🎉 ${GREEN}Installation terminée ! Relance ton terminal pour profiter de Vim + Oh My Zsh.${NC}"
+echo -e "\n🎉 ${GREEN}Installation terminée !${NC}"
