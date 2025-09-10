@@ -117,6 +117,48 @@ else
 fi
 
 # ------------------------------------------------------------------------------
+# 📦 INSTALLATION DE kubectl
+# ------------------------------------------------------------------------------
+print_section "Installation de kubectl"
+
+if ! which kubectl > /dev/null 2>&1; then
+    curl -LO "https://dl.k8s.io/release/$(curl -Ls https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+    chmod +x ./kubectl
+    sudo mv ./kubectl /usr/local/bin/kubectl
+    echo -e "✅ ${YELLOW}kubectl installé avec succès${NC}"
+else
+    echo -e "✅ ${YELLOW}kubectl déjà installé${NC}"
+fi
+
+# ------------------------------------------------------------------------------
+# 📦 INSTALLATION D'ARGOCD
+# ------------------------------------------------------------------------------
+print_section "Installation de ArgoCD"
+
+if ! kubectl get namespace argocd > /dev/null 2>&1; then
+    kubectl create namespace argocd
+    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+    echo -e "✅ ${YELLOW}ArgoCD installé dans le cluster${NC}"
+else
+    echo -e "✅ ${YELLOW}ArgoCD déjà installé${NC}"
+fi
+
+# ------------------------------------------------------------------------------
+# 📦 INSTALLATION D'ARGOCD CLI
+# ------------------------------------------------------------------------------
+print_section "Installation de ArgoCD CLI"
+
+if ! which argocd > /dev/null 2>&1; then
+    ARGOCD_VERSION=$(curl -s https://api.github.com/repos/argoproj/argo-cd/releases/latest | grep tag_name | cut -d '"' -f 4)
+    curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/download/${ARGOCD_VERSION}/argocd-linux-amd64
+    chmod +x argocd-linux-amd64
+    sudo mv argocd-linux-amd64 /usr/local/bin/argocd
+    echo -e "✅ ${YELLOW}ArgoCD CLI installé avec succès${NC}"
+else
+    echo -e "✅ ${YELLOW}ArgoCD CLI déjà installé${NC}"
+fi
+
+# ------------------------------------------------------------------------------
 # 📦 INSTALLATION DE OH MY ZSH
 # ------------------------------------------------------------------------------
 print_section "Installation de Oh My Zsh"
