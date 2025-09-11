@@ -131,19 +131,6 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 📦 INSTALLATION D'ARGOCD
-# ------------------------------------------------------------------------------
-print_section "Installation de ArgoCD"
-
-if ! kubectl get namespace argocd > /dev/null 2>&1; then
-    kubectl create namespace argocd
-    kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-    echo -e "✅ ${YELLOW}ArgoCD installé dans le cluster${NC}"
-else
-    echo -e "✅ ${YELLOW}ArgoCD déjà installé${NC}"
-fi
-
-# ------------------------------------------------------------------------------
 # 📦 INSTALLATION D'ARGOCD CLI
 # ------------------------------------------------------------------------------
 print_section "Installation de ArgoCD CLI"
