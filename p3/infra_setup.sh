@@ -1,48 +1,77 @@
 #!/bin/bash
 set -e
 
-# ------------------------------------------------------------------------------
-# 1. Créer un cluster k3d avec un port exposé (30080 -> 80 dans le cluster)
-# ------------------------------------------------------------------------------
-CLUSTER_NAME="mycluster"
+# -----------------------------
+# Variables
+# -----------------------------
+CLUSTER_NAME="iof-cluster"
+ARGOCD_NAMESPACE="argocd"
+DEV_NAMESPACE="dev"
 
-echo "🔹 Création du cluster k3d : $CLUSTER_NAME..."
-k3d cluster create $CLUSTER_NAME \
-  --api-port 6550 \
-  -p "30080:80@loadbalancer" \
-  -p "30443:443@loadbalancer"
+GIT_REPO_URL="https://github.com/cyb17/yachen.git"
+GIT_REPO_PATH="yachen"
+GIT_REPO_BRANCH="main"
+APP_NAME="my-app"
 
-echo "✅ Cluster $CLUSTER_NAME créé avec succès"
+# -----------------------------
+#  Create K3d cluster
+# -----------------------------
+echo "🚀 Creating K3d cluster..."
+k3d cluster create $CLUSTER_NAME
 
-# ------------------------------------------------------------------------------
-# 2. Créer le namespace argocd
-# ------------------------------------------------------------------------------
-echo "🔹 Création du namespace argocd..."
-kubectl create namespace argocd || echo "Namespace argocd déjà existant"
+# -----------------------------
+#  Create namespaces
+# -----------------------------
+echo "🚀 Creating namespaces..."
+kubectl create namespace $ARGOCD_NAMESPACE || echo "Namespace $ARGOCD_NAMESPACE exists"
+kubectl create namespace $DEV_NAMESPACE || echo "Namespace $DEV_NAMESPACE exists"
 
-# ------------------------------------------------------------------------------
-# 3. Installer ArgoCD via le manifest officiel
-# ------------------------------------------------------------------------------
-echo "🔹 Installation d'ArgoCD..."
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+# -----------------------------
+#  Install ArgoCD
+# -----------------------------
+echo "🚀 Installing ArgoCD..."
+kubectl apply -n $ARGOCD_NAMESPACE -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
-echo "✅ ArgoCD installé dans le namespace argocd"
+# -----------------------------------------------------
+#  expose ArgoCD with a forward-port 8080 in background
+# -----------------------------------------------------
+#echo "🚀 expose ArgoCD to be accessible from host..."
+#kubectl port-forward svc/argocd-server -n argocd 8080:80 --address=0.0.0.0 &
 
-# ------------------------------------------------------------------------------
-# 4. Exposer l'UI ArgoCD
-# ------------------------------------------------------------------------------
-echo "🔹 Exposition de l'UI ArgoCD..."
+# --------------------------------------
+#  Display ArgoCD initial admin password
+# --------------------------------------
+kubectl -n argocd wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server --timeout=120s
+kubectl -n argocd get secret argocd-initial-admin-secret \
+  -o jsonpath="{.data.password}" | base64 -d
+echo
 
-# On transforme le service ArgoCD Server en NodePort pour qu’il passe par le loadbalancer k3d
-kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "NodePort"}}'
+# -----------------------------
+#  Create ArgoCD Application
+# -----------------------------
+echo "🚀 Creating ArgoCD Application to track GitHub repo..."
 
-echo "✅ ArgoCD UI exposée. Accède-y depuis ton host :"
-echo "   👉 http://localhost:30080"
+cat <<EOF | kubectl apply -f -
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: $APP_NAME
+  namespace: $ARGOCD_NAMESPACE
+spec:
+  project: default
+  source:
+    repoURL: $GIT_REPO_URL
+    targetRevision: $GIT_REPO_BRANCH
+    path: $GIT_REPO_PATH
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: $DEV_NAMESPACE
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+EOF
 
-# ------------------------------------------------------------------------------
-# 5. Récupérer le mot de passe admin initial
-# ------------------------------------------------------------------------------
-echo "🔹 Récupération du mot de passe admin..."
-kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath="{.data.password}" | base64 -d
-echo -e "\n✅ Utilise le login: admin et le mot de passe ci-dessus pour te connecter."
+echo "🎉 Setup complete! ArgoCD can be accessed from host wor vm at http://localhost:8080"
+echo "The app '$APP_NAME' will be automatically deployed to namespace '$DEV_NAMESPACE'."
 

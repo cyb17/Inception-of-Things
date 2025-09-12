@@ -181,6 +181,7 @@ sed -i 's/plugins=(git)/plugins=(git zsh-autosuggestions zsh-syntax-highlighting
 append_if_missing 'alias cl="clear"' ~/.zshrc
 append_if_missing 'alias ls="ls --color=auto"' ~/.zshrc
 append_if_missing 'alias rmf="rm -rf"' ~/.zshrc
+append_if_missing 'alias k="kubectl"' ~/.zshrc
 
 # ------------------------------------------------------------------------------
 # ⚙️  CONFIGURATION DE ZSH COMME SHELL PAR DÉFAUT

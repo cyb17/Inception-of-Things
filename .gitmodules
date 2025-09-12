@@ -1,3 +1,3 @@
 [submodule "p3/p3/yachen"]
-	path = p3/p3/yachen
+	path = p3/yachen
 	url = https://github.com/cyb17/yachen.git
