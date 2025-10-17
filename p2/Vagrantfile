@@ -2,7 +2,7 @@ VM_MEMORY = 1024
 VM_CPU    = 1
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "ubuntu/jammy64"
+  config.vm.box = "bento/debian-13"
 
   # ===== SERVER VM =====
   config.vm.define "yachenS" do |server|
@@ -15,7 +15,7 @@ Vagrant.configure("2") do |config|
       vb.cpus   = VM_CPU
     end
 
-    server.vm.provision "all_in_one", type: "shell", path: "./all_in_one.sh"
+    server.vm.provision "all_in_one", type: "shell", path: "./scripts/all_in_one.sh"
  end
 end
 

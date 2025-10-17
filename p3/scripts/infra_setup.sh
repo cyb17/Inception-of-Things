@@ -71,6 +71,5 @@ spec:
 EOF
 
 echo '---------------------------------'
-echo "🎉 Setup complete! Argocd can be accessed now from host at https://localhost:8080 OR vm at https://localhost:8080"
+echo "🎉 Setup complete! -> Run make serve -> Argocd can be accessed now from host at https://localhost:8080 OR vm at https://localhost:30080"
 echo '---------------------------------'
-

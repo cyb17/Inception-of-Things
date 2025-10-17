@@ -16,7 +16,7 @@ done
 
 # Appliquer les applications
 echo "================================ Applying apps.yaml"
-${K} apply -f /vagrant/apps.yaml
+${K} apply -f /vagrant/confs/apps.yaml
 
 # Attendre que les déploiements soient dispo
 echo "================================ Waiting for deployments..."
@@ -26,7 +26,7 @@ ${K} wait --for=condition=available --timeout=120s deployment --all
 ${K} get all
 
 # Petite pause pour laisser Traefik prendre en compte l’ingress
-sleep 5
+  sleep 5
 
 # Tester les applications via Ingress
 echo "================================ get apps's response"
