@@ -171,6 +171,18 @@ if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
 fi
 
 # ------------------------------------------------------------------------------
+# 📦 INSTALLATION DE HELM
+# ------------------------------------------------------------------------------
+print_section "Installation de Helm"
+
+if ! which helm > /dev/null 2>&1; then
+	curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+    echo -e "✅ ${YELLOW}Helm installé avec succès${NC}"
+else
+    echo -e "✅ ${YELLOW}Helm déjà installé${NC}"
+fi
+
+# ------------------------------------------------------------------------------
 # ⚙️  CONFIGURATION DE .zshrc
 # ------------------------------------------------------------------------------
 print_section "Configuration de .zshrc"
