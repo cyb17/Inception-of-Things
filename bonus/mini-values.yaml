@@ -1,0 +1,80 @@
+global:
+  edition: ce
+  hosts:
+    domain: localhost
+    externalIP: "127.0.0.1"
+    https: false
+  ingress:
+    configureCertmanager: false
+
+certmanager:
+  enabled: false
+
+prometheus:
+  install: false
+
+gitlab-runner:
+  install: false
+
+kas:
+  enabled: false
+
+registry:
+  enabled: false
+
+minio:
+  install: false
+
+postgresql:
+  install: true
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 200m
+      memory: 512Mi
+
+redis:
+  install: true
+  master:
+    persistence:
+      enabled: false
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 100m
+        memory: 256Mi
+
+gitlab:
+  gitaly:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 200m
+        memory: 512Mi
+
+  sidekiq:
+    resources:
+      requests:
+        cpu: 100m
+        memory: 256Mi
+      limits:
+        cpu: 200m
+        memory: 512Mi
+
+  webservice:
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 1
+        memory: 2Gi
+
