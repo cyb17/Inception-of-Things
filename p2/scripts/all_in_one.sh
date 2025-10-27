@@ -15,8 +15,11 @@ until sudo k3s kubectl get nodes &>/dev/null; do
 done
 
 # Appliquer les applications
-echo "================================ Applying apps.yaml"
-${K} apply -f /vagrant/confs/apps.yaml
+echo "================================ Applying yaml configuration files..."
+${K} apply -f /vagrant/confs/app1.yaml
+${K} apply -f /vagrant/confs/app2.yaml
+${K} apply -f /vagrant/confs/app3.yaml
+${K} apply -f /vagrant/confs/ingress.yaml
 
 # Attendre que les déploiements soient dispo
 echo "================================ Waiting for deployments..."
@@ -24,15 +27,4 @@ ${K} wait --for=condition=available --timeout=120s deployment --all
 
 # Vérifier les ressources
 ${K} get all
-
-# Petite pause pour laisser Traefik prendre en compte l’ingress
-  sleep 5
-
-# Tester les applications via Ingress
-echo "================================ get apps's response"
-curl -H "Host: app1.com" http://${K3S_SERVER_IP}
-echo "================================"
-curl -H "Host: app2.com" http://${K3S_SERVER_IP}
-echo "================================"
-curl -H "Host: unknown.com" http://${K3S_SERVER_IP}
 

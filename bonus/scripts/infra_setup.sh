@@ -7,6 +7,7 @@ set -e
 CLUSTER_NAME="iof-cluster"
 ARGOCD_NAMESPACE="argocd"
 DEV_NAMESPACE="dev"
+GITLAB_NAMESPACE="gitlab"
 
 GIT_REPO_URL="https://github.com/cyb17/yachen.git"
 GIT_REPO_PATH="dev"
@@ -26,6 +27,7 @@ echo '---------------------------------'
 echo "🚀 Creating namespaces..."
 kubectl create namespace $ARGOCD_NAMESPACE || echo "Namespace $ARGOCD_NAMESPACE exists"
 kubectl create namespace $DEV_NAMESPACE || echo "Namespace $DEV_NAMESPACE exists"
+kubectl create namespace $GITLAB_NAMESPACE || echo "Namespace $GITLAB_NAMESPACE exists"
 echo '---------------------------------'
 
 # -----------------------------

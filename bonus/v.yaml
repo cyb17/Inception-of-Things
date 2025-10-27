@@ -1,0 +1,19 @@
+server:
+  extraArgs:
+    - --insecure
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      kubernetes.io/ingress.class: traefik
+    hosts:
+      - localhost
+    paths:
+      - /argocd
+    https: false
+  service:
+    type: ClusterIP
+  extraEnvs:
+    - name: ARGOCD_SERVER_BASEHREF
+      value: /argocd
+

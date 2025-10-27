@@ -602,6 +602,7 @@ global:
 
     sidekiq:
       routingRules: []
+      replicaCount: 1
 
     # Config that only applies to the defaults on initial install
     initialDefaults: {}
@@ -1511,8 +1512,8 @@ gitlab:
   ## https://docs.gitlab.com/charts/charts/gitlab/gitaly
   #   gitaly:
   ## https://docs.gitlab.com/charts/charts/gitlab/gitlab-shell
-  #   gitlab-shell:
-  #     enabled: false
+  gitlab-shell:
+    replicaCount: 1
   ## https://docs.gitlab.com/charts/charts/gitlab/gitlab-pages
   #   gitlab-pages:
   ## https://docs.gitlab.com/charts/charts/gitlab/kas
