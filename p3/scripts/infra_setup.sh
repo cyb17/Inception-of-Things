@@ -11,21 +11,23 @@ DEV_NAMESPACE="dev"
 GIT_REPO_URL="https://github.com/cyb17/yachen.git"
 GIT_REPO_PATH="dev"
 GIT_REPO_BRANCH="main"
-APP_NAME="my-app"
+APP_NAME="wil42"
+
+ARGOCD_ACCESS_URL="http://localhost:8080"
 
 # -----------------------------
 #  Create K3d cluster
 # -----------------------------
 echo "🚀 Creating K3d cluster..."
-k3d cluster create $CLUSTER_NAME --port "30081:30081"
+k3d cluster create $CLUSTER_NAME
 echo '---------------------------------'
 
 # -----------------------------
 #  Create namespaces
 # -----------------------------
 echo "🚀 Creating namespaces..."
-kubectl create namespace $ARGOCD_NAMESPACE || echo "Namespace $ARGOCD_NAMESPACE exists"
-kubectl create namespace $DEV_NAMESPACE || echo "Namespace $DEV_NAMESPACE exists"
+kubectl create namespace $ARGOCD_NAMESPACE
+kubectl create namespace $DEV_NAMESPACE
 echo '---------------------------------'
 
 # -----------------------------
@@ -71,5 +73,6 @@ spec:
 EOF
 
 echo '---------------------------------'
-echo "🎉 Setup complete! -> Run make serve -> Argocd can be accessed now from host at https://localhost:8080 OR vm at https://localhost:30080"
+echo "🎉 Setup complete!"
+echo "-> Argocd can be accessed now from host or VM at ${ARGOCD_ACCESS_URL}"
 echo '---------------------------------'
