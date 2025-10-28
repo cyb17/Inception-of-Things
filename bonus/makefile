@@ -5,8 +5,10 @@ all: build serve
 build:
 	@bash ./scripts/infra_setup.sh
 
-serve:
+serve-argocd:
 	@kubectl port-forward svc/argocd-server -n argocd 8080:443 --address localhost,10.0.2.15
+serve-gitlab:
+	@kubectl port-forward svc/gitlab-webservice-default -n gitlab 8181:8181 --address localhost,10.0.2.15
 
 down:
 	@pid=$$(lsof -ti:8080); \
