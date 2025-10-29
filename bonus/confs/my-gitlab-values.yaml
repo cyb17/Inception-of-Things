@@ -1,0 +1,110 @@
+global:
+  image:
+    pullPolicy: IfNotPresent
+  
+  edition: ce
+
+  gitlabVersion: "18.5.0"
+
+  hosts:
+    domain: localhost:8480
+    https: false
+
+  ingress:
+    enabled: false
+    configureCertmanager: false
+
+  initialRootPassword:
+    secret: my-gitlab-secrets
+    key: root-password
+
+  psql:
+    password:
+      useSecret: true
+      secret: my-gitlab-secrets
+      key: psql-password
+
+  redis:
+    auth:
+      enabled: true
+      secret: my-gitlab-secrets
+      key: redis-password
+
+  minio:
+    enabled: false
+
+  appConfig:
+    lfs:
+      enabled: false
+    artifacts:
+      enabled: false
+    uploads:
+      enabled: false
+    packages:
+      enabled: false
+    backups:
+      cron:
+        enabled: false
+      bucket: gitlab-backups
+      tmpBucket: tmp
+  
+  kas:
+    enabled: false
+
+  registry:
+    enabled: false
+    bucket: registry
+
+  webservice:
+    workerTimeout: 60
+
+  serviceAccount:
+    enabled: false
+
+installCertmanager: false
+
+nginx-ingress:
+  enabled: false
+
+prometheus:
+  install: false
+
+redis:
+  metrics:
+    enabled: false
+
+postgresql:
+  metrics:
+    enabled: false
+
+registry:
+  enabled: false
+
+gitlab-runner:
+  install: false
+
+gitlab:
+  toolbox:
+    enabled: true
+    backups:
+      enabled: false
+      cron:
+        enabled: false
+      objectStorage:
+        enabled: false
+        backend: gcs
+        config: {}
+
+  webservice:
+    service:
+      type: NodePort
+      nodePort:
+        http-webservice: 30080
+        http-workhorse: 30443
+        http-metrics-ws: 30500
+
+  gitlab-exporter:
+    enabled: false
+
+  gitlab-shell:
+    replicaCount: 1

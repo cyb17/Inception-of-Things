@@ -10,6 +10,8 @@ DEV_NAMESPACE="dev"
 GITLAB_NAMESPACE="gitlab"
 
 ARGO_VALUES_FILE="/home/yachen/iof/bonus/confs/my-argo-values.yaml"
+GITLAB_VALUES_FILE="/home/yachen/iof/bonus/confs/my-gitlab-values.yaml"
+
 
 GIT_REPO_URL="https://github.com/cyb17/yachen.git"
 GIT_REPO_PATH="dev"
@@ -42,13 +44,26 @@ echo "🚀 Installing ArgoCD..."
 helm install argocd argo/argo-cd -n argocd -f $ARGO_VALUES_FILE
 echo '---------------------------------'
 
+# -----------------------------
+#  Install gitlab
+# -----------------------------
+echo "🚀 Installing gitlab..."
+helm install gitlab gitlab/gitlab -n gitlab -f $GITLAB_VALUES_FILE
+echo '---------------------------------'
+
 # --------------------------------------
-#  Display ArgoCD initial admin password
+#  Display ArgoCD/gitlab initial admin password
 # --------------------------------------
 kubectl -n argocd wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server --timeout=120s
 echo "🚀 To access ArgoCD..."
 echo 'username : admin'
 echo "password : $(argocd admin initial-password -n argocd)"
+echo '---------------------------------'
+
+echo "🚀 To access gitlab..."
+echo 'username : root'
+echo "password : $(kubectl get secret my-gitlab-secrets -n gitlab -o jsonpath="{.data.root-password}" | base64 --decode
+echo -n)"
 echo '---------------------------------'
 
 # -----------------------------
