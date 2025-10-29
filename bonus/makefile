@@ -6,9 +6,9 @@ build:
 	@bash ./scripts/infra_setup.sh
 
 serve-argocd:
-	@kubectl port-forward svc/argocd-server -n argocd 8080:443 --address localhost,10.0.2.15
+	@kubectl port-forward svc/argocd-server -n argocd 8443:443 --address localhost,10.0.2.15
 serve-gitlab:
-	@kubectl port-forward svc/gitlab-webservice-default -n gitlab 8181:8181 --address localhost,10.0.2.15
+	@kubectl port-forward svc/gitlab-webservice-default -n gitlab 8080:8080 --address localhost,10.0.2.15
 
 down:
 	@pid=$$(lsof -ti:8080); \
@@ -24,7 +24,7 @@ down:
 	fi
 
 
-clean: down
+clean:
 	@k3d cluster delete iof-cluster
 
 re: clean all

@@ -1,0 +1,11 @@
+configs:
+  params:
+    server.insecure: "true"
+
+server:
+  service:
+    type: NodePort
+    nodePort:
+      http: 30080
+      https: 30443
+

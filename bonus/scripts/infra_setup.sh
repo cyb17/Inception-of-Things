@@ -7,19 +7,23 @@ set -e
 CLUSTER_NAME="iof-cluster"
 ARGOCD_NAMESPACE="argocd"
 DEV_NAMESPACE="dev"
+GITLAB_NAMESPACE="gitlab"
+
+ARGO_VALUES_FILE="/home/yachen/iof/bonus/confs/my-argo-values.yaml"
 
 GIT_REPO_URL="https://github.com/cyb17/yachen.git"
 GIT_REPO_PATH="dev"
 GIT_REPO_BRANCH="main"
 APP_NAME="wil42"
 
-ARGOCD_ACCESS_URL="http://localhost:8080"
+ARGOCD_ACCESS_URL="http://localhost:8443"
+GITLAB_ACCESS_URL="http://locahost:8080"
 
 # -----------------------------
 #  Create K3d cluster
 # -----------------------------
 echo "🚀 Creating K3d cluster..."
-k3d cluster create $CLUSTER_NAME
+k3d cluster create $CLUSTER_NAME -p "8443:30443@server:0" -p "8080:30080@server:0"
 echo '---------------------------------'
 
 # -----------------------------
@@ -28,13 +32,14 @@ echo '---------------------------------'
 echo "🚀 Creating namespaces..."
 kubectl create namespace $ARGOCD_NAMESPACE
 kubectl create namespace $DEV_NAMESPACE
+kubectl create namespace $GITLAB_NAMESPACE
 echo '---------------------------------'
 
 # -----------------------------
 #  Install ArgoCD
 # -----------------------------
 echo "🚀 Installing ArgoCD..."
-kubectl apply -n $ARGOCD_NAMESPACE -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
+helm install argocd argo/argo-cd -n argocd -f $ARGO_VALUES_FILE
 echo '---------------------------------'
 
 # --------------------------------------
@@ -74,5 +79,5 @@ EOF
 
 echo '---------------------------------'
 echo "🎉 Setup complete!"
-echo "-> Argocd can be accessed now from host or VM at ${ARGOCD_ACCESS_URL}"
+echo "-> Argocd can be accessed now from host or VM at $ARGOCD_ACCESS_URL"
 echo '---------------------------------'
