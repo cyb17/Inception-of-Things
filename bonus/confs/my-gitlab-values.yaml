@@ -7,8 +7,9 @@ global:
   gitlabVersion: "18.5.0"
 
   hosts:
-    domain: localhost:8480
+    domain: localhost
     https: false
+    externalIP: 127.0.0.1
 
   ingress:
     enabled: false
@@ -95,13 +96,13 @@ gitlab:
         backend: gcs
         config: {}
 
-  webservice:
-    service:
-      type: NodePort
-      nodePort:
-        http-webservice: 30080
-        http-workhorse: 30443
-        http-metrics-ws: 30500
+  # webservice:
+  #   service:
+  #     type: NodePort
+  #     nodePort:
+  #       http-webservice: 30080
+  #       http-workhorse: 30443
+  #       http-metrics-ws: 30500
 
   gitlab-exporter:
     enabled: false
