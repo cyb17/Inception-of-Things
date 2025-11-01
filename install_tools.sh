@@ -183,6 +183,18 @@ else
 fi
 
 # ------------------------------------------------------------------------------
+# 📦 INSTALLATION D'UNE UI LEGER
+# ------------------------------------------------------------------------------
+print_section "Installation de lightdm UI"
+
+if ! dpkg -l | grep lightdm > /dev/null 2>&1; then
+	sudo apt install lightdm -y
+    echo -e "✅ ${YELLOW}lightdm installé avec succès${NC}"
+else
+    echo -e "✅ ${YELLOW}lightdm déjà installé${NC}"
+fi
+
+# ------------------------------------------------------------------------------
 # ⚙️  CONFIGURATION DE .zshrc
 # ------------------------------------------------------------------------------
 print_section "Configuration de .zshrc"
