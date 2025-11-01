@@ -9,8 +9,8 @@ ARGOCD_NAMESPACE="argocd"
 DEV_NAMESPACE="dev"
 GITLAB_NAMESPACE="gitlab"
 
-ARGO_VALUES_FILE="/home/yachen/iof/bonus/confs/my-argo-values.yaml"
-GITLAB_VALUES_FILE="/home/yachen/iof/bonus/confs/my-gitlab-values.yaml"
+ARGO_VALUES_FILE="/home/yachen/Inception-of-Things/bonus/confs/my-argo-values.yaml"
+GITLAB_VALUES_FILE="/home/yachen/Inception-of-Things/bonus/confs/my-gitlab-values.yaml"
 
 
 GIT_REPO_URL="https://github.com/cyb17/yachen.git"
@@ -19,7 +19,7 @@ GIT_REPO_BRANCH="main"
 APP_NAME="wil42"
 
 ARGOCD_ACCESS_URL="http://localhost:8443"
-GITLAB_ACCESS_URL="http://locahost:8080"
+GITLAB_ACCESS_URL="gitlab.gitlab.local"
 
 # -----------------------------
 #  Create K3d cluster
@@ -94,5 +94,6 @@ EOF
 
 echo '---------------------------------'
 echo "🎉 Setup complete!"
-echo "-> Argocd can be accessed now from host or VM at $ARGOCD_ACCESS_URL"
+echo "-> Argocd can be accessed now at $ARGOCD_ACCESS_URL"
+echo "-> Gitlab can be accessed now at $ARGOCD_ACCESS_URL"
 echo '---------------------------------'

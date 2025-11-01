@@ -7,13 +7,20 @@ global:
   gitlabVersion: "18.5.0"
 
   hosts:
-    domain: localhost
+    domain: gitlab.local
     https: false
-    externalIP: 127.0.0.1
 
   ingress:
-    enabled: false
+    enabled: true
     configureCertmanager: false
+    class: traefik
+    provider: traefik
+    pathType: Prefix
+    hosts:
+      - name: gitlab.local
+        path: /
+
+  ingressClass: traefik
 
   initialRootPassword:
     secret: my-gitlab-secrets

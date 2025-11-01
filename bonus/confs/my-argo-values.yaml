@@ -2,10 +2,13 @@ configs:
   params:
     server.insecure: "true"
 
-server:
-  service:
-    type: NodePort
-    nodePort:
-      http: 30080
-      https: 30443
+ingress:
+  routes:
+    - match: "Host(`argocd.local`)"
+#server:
+ # service:
+  #  type: NodePort
+  #  nodePort:
+   #   http: 30080
+    #  https: 30443
 

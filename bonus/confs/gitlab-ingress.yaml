@@ -6,7 +6,8 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - http:
+  - domain: gitlab.local
+    http:
       paths:
       - path: /gitlab
         pathType: Prefix
