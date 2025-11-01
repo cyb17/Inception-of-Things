@@ -1,0 +1,7 @@
+configs:
+  params:
+    server.insecure: "true"
+
+#ingress:
+ # routes:
+  #  - match: "Host(`argocd.local`)"

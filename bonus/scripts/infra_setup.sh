@@ -5,27 +5,23 @@ set -e
 # Variables
 # -----------------------------
 CLUSTER_NAME="iof-cluster"
-ARGOCD_NAMESPACE="argocd"
+
 DEV_NAMESPACE="dev"
 GITLAB_NAMESPACE="gitlab"
+ARGOCD_NAMESPACE="argocd"
 
-ARGO_VALUES_FILE="/home/yachen/Inception-of-Things/bonus/confs/my-argo-values.yaml"
-GITLAB_VALUES_FILE="/home/yachen/Inception-of-Things/bonus/confs/my-gitlab-values.yaml"
+GITLAB_VALUES_FILE="/home/yachen/Inception-of-Things/bonus/confs/gitlab/my-gitlab-values.yaml"
+ARGOCD_VALUES_FILE="/home/yachen/Inception-of-Things/bonus/confs/argocd/my-argo-values.yaml"
+ARGOCD_INGRESS_FILE="/home/yachen/Inception-of-Things/bonus/confs/argocd/my-argo-ingress.yaml"
 
-
-GIT_REPO_URL="https://github.com/cyb17/yachen.git"
-GIT_REPO_PATH="dev"
-GIT_REPO_BRANCH="main"
-APP_NAME="wil42"
-
-ARGOCD_ACCESS_URL="http://localhost:8443"
-GITLAB_ACCESS_URL="gitlab.gitlab.local"
+ARGOCD_ACCESS_URL="http://argocd.local/"
+GITLAB_ACCESS_URL="http://gitlab.local/"
 
 # -----------------------------
 #  Create K3d cluster
 # -----------------------------
 echo "🚀 Creating K3d cluster..."
-k3d cluster create $CLUSTER_NAME -p "8443:30443@server:0" -p "8080:30080@server:0"
+k3d cluster create $CLUSTER_NAME
 echo '---------------------------------'
 
 # -----------------------------
@@ -41,7 +37,14 @@ echo '---------------------------------'
 #  Install ArgoCD
 # -----------------------------
 echo "🚀 Installing ArgoCD..."
-helm install argocd argo/argo-cd -n argocd -f $ARGO_VALUES_FILE
+helm install argocd argo/argo-cd -n argocd -f $ARGOCD_VALUES_FILE
+echo '---------------------------------'
+
+# -------------------------------
+#  Add Traefik Ingress for ArgoCD
+# -------------------------------
+echo "🚀 Adding Traefik Ingress for ArgoCD..."
+kubectl apply -f $ARGOCD_INGRESS_FILE -n argocd
 echo '---------------------------------'
 
 # -----------------------------
@@ -54,8 +57,8 @@ echo '---------------------------------'
 # --------------------------------------
 #  Display ArgoCD/gitlab initial admin password
 # --------------------------------------
-kubectl -n argocd wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server --timeout=120s
 echo "🚀 To access ArgoCD..."
+kubectl -n argocd wait --for=condition=Ready pod -l app.kubernetes.io/name=argocd-server --timeout=120s
 echo 'username : admin'
 echo "password : $(argocd admin initial-password -n argocd)"
 echo '---------------------------------'
@@ -66,34 +69,8 @@ echo "password : $(kubectl get secret my-gitlab-secrets -n gitlab -o jsonpath="{
 echo -n)"
 echo '---------------------------------'
 
-# -----------------------------
-#  Create ArgoCD Application
-# -----------------------------
-echo "🚀 Creating ArgoCD Application to track GitHub repo..."
-
-cat <<EOF | kubectl apply -f -
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: $APP_NAME
-  namespace: $ARGOCD_NAMESPACE
-spec:
-  project: default
-  source:
-    repoURL: $GIT_REPO_URL
-    targetRevision: $GIT_REPO_BRANCH
-    path: $GIT_REPO_PATH
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: $DEV_NAMESPACE
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-EOF
-
 echo '---------------------------------'
 echo "🎉 Setup complete!"
 echo "-> Argocd can be accessed now at $ARGOCD_ACCESS_URL"
-echo "-> Gitlab can be accessed now at $ARGOCD_ACCESS_URL"
+echo "-> Gitlab can be accessed now at $GITLAB_ACCESS_URL"
 echo '---------------------------------'

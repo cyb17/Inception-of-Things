@@ -7,7 +7,7 @@ global:
   gitlabVersion: "18.5.0"
 
   hosts:
-    domain: gitlab.local
+    domain: local
     https: false
 
   ingress:
