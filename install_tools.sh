@@ -183,9 +183,22 @@ else
 fi
 
 # ------------------------------------------------------------------------------
-# 📦 INSTALLATION D'UNE UI LEGER
+# 📦 INSTALLATION DE XFCE4
 # ------------------------------------------------------------------------------
-print_section "Installation de lightdm UI"
+print_section "Installation de xfce4"
+
+if ! dpkg -l | grep xfce4 > /dev/null 2>&1; then
+	sudo apt install xfce4
+    echo -e "✅ ${YELLOW}xfce4 installé avec succès${NC}"
+else
+    echo -e "✅ ${YELLOW}xfce4 déjà installé${NC}"
+fi
+
+
+# ------------------------------------------------------------------------------
+# 📦 INSTALLATION DE LIGHTDM
+# ------------------------------------------------------------------------------
+print_section "Installation de lightdm"
 
 if ! dpkg -l | grep lightdm > /dev/null 2>&1; then
 	sudo apt install lightdm -y

@@ -65,8 +65,7 @@ echo '---------------------------------'
 
 echo "🚀 To access gitlab..."
 echo 'username : root'
-echo "password : $(kubectl get secret my-gitlab-secrets -n gitlab -o jsonpath="{.data.root-password}" | base64 --decode
-echo -n)"
+echo "password : $(kubectl get secret gitlab-gitlab-initial-root-password -n gitlab -o jsonpath="{.data.password}" | base64 --decode)"
 echo '---------------------------------'
 
 echo '---------------------------------'
