@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: http://gitlab-webservice-default.gitlab.svc:8080/root/yachen.git
+    repoURL: http://gitlab-webservice-default.gitlab.svc:8181/root/yachen.git
     targetRevision: main
     path: dev
   destination:
