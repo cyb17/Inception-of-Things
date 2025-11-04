@@ -13,13 +13,13 @@ GIT_REPO_PATH="dev"
 GIT_REPO_BRANCH="main"
 APP_NAME="wil42"
 
-ARGOCD_ACCESS_URL="http://localhost:8080"
+ARGOCD_ACCESS_URL="https://localhost:30080"
 
 # -----------------------------
 #  Create K3d cluster
 # -----------------------------
 echo "🚀 Creating K3d cluster..."
-k3d cluster create $CLUSTER_NAME
+k3d cluster create $CLUSTER_NAME -p "30080:30080@server:0"
 echo '---------------------------------'
 
 # -----------------------------
@@ -44,6 +44,14 @@ kubectl -n argocd wait --for=condition=Ready pod -l app.kubernetes.io/name=argoc
 echo "🚀 To access ArgoCD..."
 echo 'username : admin'
 echo "password : $(argocd admin initial-password -n argocd)"
+echo '---------------------------------'
+
+# -------------------------------
+#  Exposing ArgoCD with NodePort
+# -------------------------------
+echo "🚀 Exposing ArgoCD with NodePort..."
+kubectl patch svc argocd-server -n argocd \
+  -p '{"spec": {"type": "NodePort", "ports": [{"port": 443, "targetPort": 8080, "nodePort": 30080}]}}'
 echo '---------------------------------'
 
 # -----------------------------
